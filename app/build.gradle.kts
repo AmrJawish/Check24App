@@ -49,6 +49,24 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Retrofit for REST API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    // Moshi for JSON parsing
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+
+    // Coroutine support
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Coil for image loading in Compose
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // Jetpack Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // Test dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
