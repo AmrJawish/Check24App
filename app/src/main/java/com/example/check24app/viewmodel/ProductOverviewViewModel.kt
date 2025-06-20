@@ -1,5 +1,6 @@
 package com.example.check24app.viewmodel
 
+import androidx.compose.material3.CardDefaults
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.check24app.model.Product
@@ -7,6 +8,11 @@ import com.example.check24app.repository.ProductRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+
+
+
+
 
 sealed class ProductUiState {
     object Loading : ProductUiState()
@@ -37,4 +43,5 @@ class ProductOverviewViewModel : ViewModel() {
             }
         }
     }
+
 }
