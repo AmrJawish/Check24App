@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.check24app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.check24app"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -53,9 +53,7 @@ dependencies {
     // Retrofit for REST API
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
 
-    // Moshi for JSON parsing
-    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // Coroutine support
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
