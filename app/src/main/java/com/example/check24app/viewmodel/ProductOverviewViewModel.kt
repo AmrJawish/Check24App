@@ -1,6 +1,5 @@
 package com.example.check24app.viewmodel
 
-import androidx.compose.material3.CardDefaults
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.check24app.model.Product

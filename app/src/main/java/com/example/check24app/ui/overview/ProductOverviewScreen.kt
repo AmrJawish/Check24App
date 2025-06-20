@@ -85,7 +85,8 @@ fun ProductCard(product: Product) {
             ) {
                 Text(text = product.name, style = MaterialTheme.typography.titleMedium)
                 Text(text = product.description, style = MaterialTheme.typography.bodySmall)
-                Text(text = "Rating: ${product.rating}")
+                RatingStars(roundRatingToHalf(product.rating))
+
             }
             if (!product.available) {
                 ProductImage(product.imageURL)
@@ -103,4 +104,22 @@ fun ProductImage(url: String) {
             .size(80.dp)
     )
 }
+
+fun roundRatingToHalf(rating: Double): Double {
+    return kotlin.math.floor(rating * 2) / 2
+}
+
+@Composable
+fun RatingStars(rating: Double) {
+    val fullStars = rating.toInt()
+    val halfStar = if (rating - fullStars >= 0.5) 1 else 0
+    val emptyStars = 5 - fullStars - halfStar
+
+    Row {
+        repeat(fullStars) { Text("★") }         // Full star
+        repeat(halfStar) { Text("⯪") }          // Half star (fallback symbol)
+        repeat(emptyStars) { Text("☆") }        // Empty star
+    }
+}
+
 
