@@ -1,17 +1,13 @@
 package com.example.check24app.viewmodel
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.check24app.model.Product
 import com.example.check24app.repository.ProductRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import com.example.check24app.model.ProductFilter
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 sealed class ProductUiState {
     object Loading : ProductUiState()
@@ -29,6 +25,8 @@ class ProductOverviewViewModel : ViewModel() {
     private val _currentFilter = MutableStateFlow(ProductFilter.ALL)
     val currentFilter: StateFlow<ProductFilter> = _currentFilter
 
+    private val _products = mutableStateListOf<Product>()
+
     init {
         loadProducts()
     }
@@ -39,6 +37,8 @@ class ProductOverviewViewModel : ViewModel() {
             val result = repository.getProducts()
             if (result.isSuccess) {
                 val products = result.getOrNull()?.products ?: emptyList()
+                _products.clear()
+                _products.addAll(products)
                 _uiState.value = ProductUiState.Success(products)
             } else {
                 _uiState.value = ProductUiState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
@@ -50,18 +50,25 @@ class ProductOverviewViewModel : ViewModel() {
         _currentFilter.value = filter
     }
 
+    fun toggleFavorite(productId: Int) {
+        val index = _products.indexOfFirst { it.id == productId }
+        if (index != -1) {
+            val updatedProduct = _products[index].copy(isFavorite = !_products[index].isFavorite)
+            _products[index] = updatedProduct
+        }
+    }
+
     val filteredProducts: StateFlow<List<Product>> = combine(
         _uiState,
         _currentFilter
     ) { state, filter ->
         if (state is ProductUiState.Success) {
-            val allProducts = state.products
+            val allProducts = _products
             when (filter) {
                 ProductFilter.ALL -> allProducts
                 ProductFilter.AVAILABLE -> allProducts.filter { it.available }
-                ProductFilter.FAVORITES -> allProducts.filter { it.id % 2 == 0 } // simulate
+                ProductFilter.FAVORITES -> allProducts.filter { it.isFavorite }
             }
         } else emptyList()
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-
 }

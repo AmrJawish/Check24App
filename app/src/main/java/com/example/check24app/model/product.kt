@@ -23,7 +23,9 @@ data class Product(
     val description: String,
     val longDescription: String,
     val rating: Double,
-    val price: Price
+    val price: Price,
+    var isFavorite: Boolean = false
+
 )
 
 data class Price(

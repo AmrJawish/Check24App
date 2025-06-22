@@ -1,23 +1,23 @@
 package com.example.check24app.ui.overview
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.check24app.model.Product
+import com.example.check24app.model.ProductFilter
 import com.example.check24app.viewmodel.ProductOverviewViewModel
 import com.example.check24app.viewmodel.ProductUiState
-import coil.compose.AsyncImage
-import com.example.check24app.model.ProductFilter
-
+import kotlin.math.floor
 
 @Composable
 fun ProductOverviewScreen(
@@ -29,7 +29,10 @@ fun ProductOverviewScreen(
 
     Scaffold(
         bottomBar = {
-            FilterBar(selected = filter, onFilterSelected = { viewModel.setFilter(it) })
+            FilterBar(
+                selected = filter,
+                onFilterSelected = { viewModel.setFilter(it) }
+            )
         }
     ) { innerPadding ->
         Box(modifier = Modifier
@@ -38,13 +41,14 @@ fun ProductOverviewScreen(
             when (state) {
                 is ProductUiState.Loading -> LoadingView()
                 is ProductUiState.Error -> ErrorView((state as ProductUiState.Error).message)
-                is ProductUiState.Success -> ProductListView(products)
+                is ProductUiState.Success -> ProductListView(
+                    products = products,
+                    onToggleFavorite = { viewModel.toggleFavorite(it.toInt()) }
+                )
             }
         }
     }
 }
-
-
 
 @Composable
 fun LoadingView() {
@@ -61,24 +65,21 @@ fun ErrorView(message: String) {
 }
 
 @Composable
-fun ProductListView(products: List<Product>) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(products) { product ->
-                ProductCard(product = product)
-            }
+fun ProductListView(products: List<Product>, onToggleFavorite: (String) -> Unit) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(products) { product ->
+            ProductCard(product = product, onToggleFavorite = onToggleFavorite)
         }
-
     }
 }
 
 @Composable
-fun ProductCard(product: Product) {
+fun ProductCard(product: Product, onToggleFavorite: (String) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -100,7 +101,12 @@ fun ProductCard(product: Product) {
                 Text(text = product.name, style = MaterialTheme.typography.titleMedium)
                 Text(text = product.description, style = MaterialTheme.typography.bodySmall)
                 RatingStars(roundRatingToHalf(product.rating))
-
+            }
+            IconButton(onClick = { onToggleFavorite(product.id.toString()) }) {
+                Icon(
+                    imageVector = if (product.isFavorite) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
+                    contentDescription = null
+                )
             }
             if (!product.available) {
                 ProductImage(product.imageURL)
@@ -114,13 +120,12 @@ fun ProductImage(url: String) {
     AsyncImage(
         model = url,
         contentDescription = null,
-        modifier = Modifier
-            .size(80.dp)
+        modifier = Modifier.size(80.dp)
     )
 }
 
 fun roundRatingToHalf(rating: Double): Double {
-    return kotlin.math.floor(rating * 2) / 2
+    return floor(rating * 2) / 2
 }
 
 @Composable
@@ -130,9 +135,9 @@ fun RatingStars(rating: Double) {
     val emptyStars = 5 - fullStars - halfStar
 
     Row {
-        repeat(fullStars) { Text("★") }         // Full star
-        repeat(halfStar) { Text("⯪") }          // Half star (fallback symbol)
-        repeat(emptyStars) { Text("☆") }        // Empty star
+        repeat(fullStars) { Text("★") }
+        repeat(halfStar) { Text("⯪") } // Optional fallback symbol
+        repeat(emptyStars) { Text("☆") }
     }
 }
 
@@ -141,12 +146,20 @@ fun FilterBar(
     selected: ProductFilter,
     onFilterSelected: (ProductFilter) -> Unit
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
         ProductFilter.values().forEach { filter ->
             Button(
                 onClick = { onFilterSelected(filter) },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (filter == selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                    containerColor = if (filter == selected)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.secondary
                 )
             ) {
                 Text(text = filter.label)
@@ -154,5 +167,3 @@ fun FilterBar(
         }
     }
 }
-
-
