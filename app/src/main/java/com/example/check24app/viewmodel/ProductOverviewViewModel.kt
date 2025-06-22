@@ -7,10 +7,10 @@ import com.example.check24app.repository.ProductRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-
-
-
-
+import com.example.check24app.model.ProductFilter
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 
 sealed class ProductUiState {
@@ -25,6 +25,9 @@ class ProductOverviewViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProductUiState>(ProductUiState.Loading)
     val uiState: StateFlow<ProductUiState> = _uiState
+
+    private val _currentFilter = MutableStateFlow(ProductFilter.ALL)
+    val currentFilter: StateFlow<ProductFilter> = _currentFilter
 
     init {
         loadProducts()
@@ -42,5 +45,23 @@ class ProductOverviewViewModel : ViewModel() {
             }
         }
     }
+
+    fun setFilter(filter: ProductFilter) {
+        _currentFilter.value = filter
+    }
+
+    val filteredProducts: StateFlow<List<Product>> = combine(
+        _uiState,
+        _currentFilter
+    ) { state, filter ->
+        if (state is ProductUiState.Success) {
+            val allProducts = state.products
+            when (filter) {
+                ProductFilter.ALL -> allProducts
+                ProductFilter.AVAILABLE -> allProducts.filter { it.available }
+                ProductFilter.FAVORITES -> allProducts.filter { it.id % 2 == 0 } // simulate
+            }
+        } else emptyList()
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
 }

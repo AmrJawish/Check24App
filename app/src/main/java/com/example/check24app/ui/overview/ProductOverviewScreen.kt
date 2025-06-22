@@ -16,7 +16,7 @@ import com.example.check24app.model.Product
 import com.example.check24app.viewmodel.ProductOverviewViewModel
 import com.example.check24app.viewmodel.ProductUiState
 import coil.compose.AsyncImage
-
+import com.example.check24app.model.ProductFilter
 
 
 @Composable
@@ -24,13 +24,27 @@ fun ProductOverviewScreen(
     viewModel: ProductOverviewViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val filter by viewModel.currentFilter.collectAsState()
+    val products by viewModel.filteredProducts.collectAsState()
 
-    when (state) {
-        is ProductUiState.Loading -> LoadingView()
-        is ProductUiState.Error -> ErrorView((state as ProductUiState.Error).message)
-        is ProductUiState.Success -> ProductListView((state as ProductUiState.Success).products)
+    Scaffold(
+        bottomBar = {
+            FilterBar(selected = filter, onFilterSelected = { viewModel.setFilter(it) })
+        }
+    ) { innerPadding ->
+        Box(modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize()) {
+            when (state) {
+                is ProductUiState.Loading -> LoadingView()
+                is ProductUiState.Error -> ErrorView((state as ProductUiState.Error).message)
+                is ProductUiState.Success -> ProductListView(products)
+            }
+        }
     }
 }
+
+
 
 @Composable
 fun LoadingView() {
@@ -119,6 +133,25 @@ fun RatingStars(rating: Double) {
         repeat(fullStars) { Text("★") }         // Full star
         repeat(halfStar) { Text("⯪") }          // Half star (fallback symbol)
         repeat(emptyStars) { Text("☆") }        // Empty star
+    }
+}
+
+@Composable
+fun FilterBar(
+    selected: ProductFilter,
+    onFilterSelected: (ProductFilter) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        ProductFilter.values().forEach { filter ->
+            Button(
+                onClick = { onFilterSelected(filter) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (filter == selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                )
+            ) {
+                Text(text = filter.label)
+            }
+        }
     }
 }
 
