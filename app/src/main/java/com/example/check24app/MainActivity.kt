@@ -30,13 +30,24 @@ class MainActivity : ComponentActivity() {
                     composable("detail/{productId}") { backStackEntry ->
                         val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
                         if (productId != null) {
-                            ProductDetailScreen(productId = productId)
+                            ProductDetailScreen(
+                                productId = productId,
+                                navController = navController
+                            )
                         }
                     }
 
                     composable("webview") {
                         WebViewScreen(url = "http://m.check24.de/rechtliche-hinweise?deviceoutput=app")
                     }
+
+                    composable("detail/{productId}") { backStackEntry ->
+                        val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
+                        if (productId != null) {
+                            ProductDetailScreen(productId = productId, navController = navController)
+                        }
+                    }
+
 
                 }
             }

@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,45 +16,81 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.check24app.viewmodel.ProductOverviewViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailScreen(productId: Int) {
+fun ProductDetailScreen(productId: Int, navController: NavController) {
     val viewModel: ProductOverviewViewModel = viewModel()
     val products by viewModel.filteredProducts.collectAsState()
     val product = products.find { it.id == productId }
 
     if (product == null) {
         return Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Product not found", modifier = Modifier.padding(16.dp))
+            Text("Product not found")
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-            text = product.name,
-            style = MaterialTheme.typography.titleLarge,
-            color = if (product.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
-        )
-        AsyncImage(model = product.imageURL, contentDescription = null, modifier = Modifier.height(200.dp))
-        Text(text = product.description, style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = product.longDescription, style = MaterialTheme.typography.bodySmall)
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            viewModel.toggleFavorite(product.id)
-        }) {
-            Text(if (product.isFavorite) "Vergessen" else "Vormerken")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Produktdetails") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Zurück")
+                    }
+                }
+            )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        val context = LocalContext.current
-        Text(
-            text = "© 2016 Check24",
-            modifier = Modifier.clickable {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://m.check24.de/rechtliche-hinweise?deviceoutput=app"))
-                ContextCompat.startActivity(context, intent, null)
+    ) { padding ->
+        Column(modifier = Modifier
+            .padding(padding)
+            .padding(16.dp)) {
+
+            Text(
+                text = product.name,
+                style = MaterialTheme.typography.titleLarge,
+                color = if (product.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            AsyncImage(
+                model = product.imageURL,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(text = product.description, style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = product.longDescription, style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                viewModel.toggleFavorite(product.id)
+            }) {
+                Text(if (product.isFavorite) "Vergessen" else "Vormerken")
             }
-        )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            val context = LocalContext.current
+            Text(
+                text = "© 2016 Check24",
+                modifier = Modifier.clickable {
+                    val intent = Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("http://m.check24.de/rechtliche-hinweise?deviceoutput=app")
+                    )
+                    ContextCompat.startActivity(context, intent, null)
+                }
+            )
+        }
     }
 }
