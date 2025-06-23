@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -23,7 +25,6 @@ import com.example.check24app.viewmodel.ProductOverviewViewModel
 @Composable
 fun ProductDetailScreen(productId: Int, navController: NavController, viewModel: ProductOverviewViewModel) {
     val product by viewModel.observeProductById(productId).collectAsState()
-
     val context = LocalContext.current
 
     product?.let { currentProduct ->
@@ -41,6 +42,7 @@ fun ProductDetailScreen(productId: Int, navController: NavController, viewModel:
         ) { padding ->
             Column(
                 modifier = Modifier
+                    .verticalScroll(rememberScrollState()) // ✅ Enables scrolling
                     .padding(padding)
                     .padding(16.dp)
             ) {

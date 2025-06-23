@@ -107,15 +107,22 @@ fun ProductListView(
     onToggleFavorite: (String) -> Unit,
     onProductClick: (Int) -> Unit,
     onFooterClick: () -> Unit
-)
-
- {
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // ✅ Title and subtitle at top
+        item {
+            Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                Text("Unsere Produkte", style = MaterialTheme.typography.titleLarge)
+                Text("Wählen Sie aus unseren besten Angeboten", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
+        // ✅ Product cards
         items(products) { product ->
             ProductCard(
                 product = product,
@@ -123,12 +130,14 @@ fun ProductListView(
                 onClick = { onProductClick(product.id) }
             )
         }
+
+        // ✅ Footer at bottom
         item {
             FooterView(onClick = onFooterClick)
-
         }
     }
 }
+
 
 @Composable
 fun ProductCard(
