@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.check24app.ui.overview.ProductDetailScreen
 import com.example.check24app.ui.overview.ProductOverviewScreen
+import com.example.check24app.ui.overview.WebViewScreen
 import com.example.check24app.ui.theme.Check24AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,10 +22,10 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "overview") {
                     composable("overview") {
                         ProductOverviewScreen(
-                            onProductClick = { productId ->
-                                navController.navigate("detail/$productId")
-                            }
+                            onProductClick = { productId -> navController.navigate("detail/$productId") },
+                            onFooterClick = { navController.navigate("webview") }
                         )
+
                     }
                     composable("detail/{productId}") { backStackEntry ->
                         val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
@@ -32,6 +33,11 @@ class MainActivity : ComponentActivity() {
                             ProductDetailScreen(productId = productId)
                         }
                     }
+
+                    composable("webview") {
+                        WebViewScreen(url = "http://m.check24.de/rechtliche-hinweise?deviceoutput=app")
+                    }
+
                 }
             }
         }

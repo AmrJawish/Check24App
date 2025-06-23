@@ -27,7 +27,8 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 @Composable
 fun ProductOverviewScreen(
     viewModel: ProductOverviewViewModel = viewModel(),
-    onProductClick: (Int) -> Unit
+    onProductClick: (Int) -> Unit,
+    onFooterClick: () -> Unit
 )
  {
     val state by viewModel.uiState.collectAsState()
@@ -57,7 +58,8 @@ fun ProductOverviewScreen(
                         ProductListView(
                             products = products,
                             onToggleFavorite = { viewModel.toggleFavorite(it.toInt()) },
-                            onProductClick = onProductClick
+                            onProductClick = onProductClick,
+                            onFooterClick = onFooterClick
                         )
                     }
                 }
@@ -85,8 +87,10 @@ fun ErrorView(message: String) {
 fun ProductListView(
     products: List<Product>,
     onToggleFavorite: (String) -> Unit,
-    onProductClick: (Int) -> Unit
+    onProductClick: (Int) -> Unit,
+    onFooterClick: () -> Unit
 )
+
  {
     LazyColumn(
         modifier = Modifier
@@ -100,6 +104,10 @@ fun ProductListView(
                 onToggleFavorite = onToggleFavorite,
                 onClick = { onProductClick(product.id) }
             )
+        }
+        item {
+            FooterView(onClick = onFooterClick)
+
         }
     }
 }
@@ -203,5 +211,18 @@ fun FilterBar(
                 Text(text = filter.label)
             }
         }
+    }
+}
+
+@Composable
+fun FooterView(onClick: () -> Unit = {}) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "© 2016 Check24")
     }
 }
