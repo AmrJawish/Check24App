@@ -22,11 +22,14 @@ import com.example.check24app.viewmodel.ProductUiState
 import kotlin.math.floor
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.StarHalf
+import androidx.compose.material3.Icon
 
 @Composable
 fun ProductOverviewScreen(
-    viewModel: ProductOverviewViewModel = viewModel(),
+    viewModel: ProductOverviewViewModel,
     onProductClick: (Int) -> Unit,
     onFooterClick: () -> Unit
 )
@@ -192,13 +195,19 @@ fun roundRatingToHalf(rating: Double): Double {
 @Composable
 fun RatingStars(rating: Double) {
     val fullStars = rating.toInt()
-    val halfStar = if (rating - fullStars >= 0.5) 1 else 0
-    val emptyStars = 5 - fullStars - halfStar
+    val hasHalfStar = (rating % 1) >= 0.5
+    val emptyStars = 5 - fullStars - if (hasHalfStar) 1 else 0
 
     Row {
-        repeat(fullStars) { Text("★") }
-        repeat(halfStar) { Text("⯪") } // Optional fallback symbol
-        repeat(emptyStars) { Text("☆") }
+        repeat(fullStars) {
+            Icon(Icons.Filled.Star, contentDescription = "Full Star")
+        }
+        if (hasHalfStar) {
+            Icon(Icons.Filled.StarHalf, contentDescription = "Half Star")
+        }
+        repeat(emptyStars) {
+            Icon(Icons.Filled.StarBorder, contentDescription = "Empty Star")
+        }
     }
 }
 

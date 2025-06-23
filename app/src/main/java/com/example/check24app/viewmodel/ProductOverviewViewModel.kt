@@ -1,6 +1,7 @@
 package com.example.check24app.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.check24app.model.Product
@@ -28,6 +29,9 @@ class ProductOverviewViewModel : ViewModel() {
     private val _products = mutableStateListOf<Product>()
 
     private var loadAttempt = 0
+
+    private val _activeProduct = MutableStateFlow<Product?>(null)
+
 
 
     init {
@@ -71,25 +75,47 @@ class ProductOverviewViewModel : ViewModel() {
         _currentFilter.value = filter
     }
 
+
+    fun observeProductById(productId: Int): StateFlow<Product?> {
+        // Update on first call
+        if (_activeProduct.value?.id != productId) {
+            _activeProduct.value = _products.find { it.id == productId }
+        }
+        return _activeProduct
+    }
+
+
+
+
+
     fun toggleFavorite(productId: Int) {
         val index = _products.indexOfFirst { it.id == productId }
         if (index != -1) {
             val updatedProduct = _products[index].copy(isFavorite = !_products[index].isFavorite)
             _products[index] = updatedProduct
+
+            // 🔁 update observed product
+            if (_activeProduct.value?.id == productId) {
+                _activeProduct.value = updatedProduct
+            }
         }
+
+        _currentFilter.value = _currentFilter.value
     }
+
 
     val filteredProducts: StateFlow<List<Product>> = combine(
         _uiState,
-        _currentFilter
-    ) { state, filter ->
+        _currentFilter,
+        snapshotFlow { _products.toList() } // convert observable list to flow
+    ) { state, filter, currentProducts ->
         if (state is ProductUiState.Success) {
-            val allProducts = _products
             when (filter) {
-                ProductFilter.ALL -> allProducts
-                ProductFilter.AVAILABLE -> allProducts.filter { it.available }
-                ProductFilter.FAVORITES -> allProducts.filter { it.isFavorite }
+                ProductFilter.ALL -> currentProducts
+                ProductFilter.AVAILABLE -> currentProducts.filter { it.available }
+                ProductFilter.FAVORITES -> currentProducts.filter { it.isFavorite }
             }
         } else emptyList()
+
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 }
