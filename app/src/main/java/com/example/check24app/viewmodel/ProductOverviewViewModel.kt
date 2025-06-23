@@ -36,15 +36,27 @@ class ProductOverviewViewModel : ViewModel() {
         viewModelScope.launch {
             val result = repository.getProducts()
             if (result.isSuccess) {
-                val products = result.getOrNull()?.products ?: emptyList()
+                val newProducts = result.getOrNull()?.products ?: emptyList()
+
+                // Preserve isFavorite status
+                val updated = newProducts.map { newProduct ->
+                    val existing = _products.find { it.id == newProduct.id }
+                    if (existing != null && existing.isFavorite) {
+                        newProduct.copy(isFavorite = true)
+                    } else {
+                        newProduct
+                    }
+                }
+
                 _products.clear()
-                _products.addAll(products)
-                _uiState.value = ProductUiState.Success(products)
+                _products.addAll(updated)
+                _uiState.value = ProductUiState.Success(updated)
             } else {
                 _uiState.value = ProductUiState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
             }
         }
     }
+
 
     fun setFilter(filter: ProductFilter) {
         _currentFilter.value = filter

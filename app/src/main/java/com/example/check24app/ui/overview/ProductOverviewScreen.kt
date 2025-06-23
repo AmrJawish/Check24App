@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -19,6 +20,9 @@ import com.example.check24app.model.ProductFilter
 import com.example.check24app.viewmodel.ProductOverviewViewModel
 import com.example.check24app.viewmodel.ProductUiState
 import kotlin.math.floor
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+
 
 @Composable
 fun ProductOverviewScreen(
@@ -44,11 +48,20 @@ fun ProductOverviewScreen(
             when (state) {
                 is ProductUiState.Loading -> LoadingView()
                 is ProductUiState.Error -> ErrorView((state as ProductUiState.Error).message)
-                is ProductUiState.Success -> ProductListView(
-                    products = products,
-                    onToggleFavorite = { viewModel.toggleFavorite(it.toInt()) },
-                    onProductClick = onProductClick
-                )
+                is ProductUiState.Success -> {
+                    val isRefreshing = state is ProductUiState.Loading
+                    SwipeRefresh(
+                        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+                        onRefresh = { viewModel.loadProducts() }
+                    ) {
+                        ProductListView(
+                            products = products,
+                            onToggleFavorite = { viewModel.toggleFavorite(it.toInt()) },
+                            onProductClick = onProductClick
+                        )
+                    }
+                }
+
             }
         }
     }
@@ -101,6 +114,12 @@ fun ProductCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = if (product.isFavorite)
+                Color(0xFFD1C4E9) // light purple
+            else
+                MaterialTheme.colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
