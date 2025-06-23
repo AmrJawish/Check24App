@@ -37,18 +37,24 @@ fun ProductOverviewScreen(
 
     Scaffold(
         bottomBar = {
-            FilterBar(
-                selected = filter,
-                onFilterSelected = { viewModel.setFilter(it) }
-            )
+            if (state !is ProductUiState.Error) {
+                FilterBar(
+                    selected = filter,
+                    onFilterSelected = { viewModel.setFilter(it) }
+                )
+            }
         }
+
     ) { innerPadding ->
         Box(modifier = Modifier
             .padding(innerPadding)
             .fillMaxSize()) {
             when (state) {
                 is ProductUiState.Loading -> LoadingView()
-                is ProductUiState.Error -> ErrorView((state as ProductUiState.Error).message)
+                is ProductUiState.Error -> ErrorView(
+                    message = (state as ProductUiState.Error).message,
+                    onReload = { viewModel.loadProducts() }
+                )
                 is ProductUiState.Success -> {
                     val isRefreshing = state is ProductUiState.Loading
                     SwipeRefresh(
@@ -77,11 +83,20 @@ fun LoadingView() {
 }
 
 @Composable
-fun ErrorView(message: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Error: $message")
+fun ErrorView(message: String, onReload: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Fehler: $message")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onReload) {
+            Text("Neuladen")
+        }
     }
 }
+
 
 @Composable
 fun ProductListView(

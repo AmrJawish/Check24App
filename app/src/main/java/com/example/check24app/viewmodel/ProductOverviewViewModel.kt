@@ -27,6 +27,9 @@ class ProductOverviewViewModel : ViewModel() {
 
     private val _products = mutableStateListOf<Product>()
 
+    private var loadAttempt = 0
+
+
     init {
         loadProducts()
     }
@@ -34,11 +37,16 @@ class ProductOverviewViewModel : ViewModel() {
     fun loadProducts() {
         _uiState.value = ProductUiState.Loading
         viewModelScope.launch {
-            val result = repository.getProducts()
+            loadAttempt++
+
+            val result = if (loadAttempt % 3 == 0) {
+                Result.failure(Exception("Simulated error"))
+            } else {
+                repository.getProducts()
+            }
+
             if (result.isSuccess) {
                 val newProducts = result.getOrNull()?.products ?: emptyList()
-
-                // Preserve isFavorite status
                 val updated = newProducts.map { newProduct ->
                     val existing = _products.find { it.id == newProduct.id }
                     if (existing != null && existing.isFavorite) {
@@ -56,6 +64,7 @@ class ProductOverviewViewModel : ViewModel() {
             }
         }
     }
+
 
 
     fun setFilter(filter: ProductFilter) {
