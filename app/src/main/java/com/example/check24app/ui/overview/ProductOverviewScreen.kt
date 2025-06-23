@@ -1,5 +1,6 @@
 package com.example.check24app.ui.overview
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,8 +22,10 @@ import kotlin.math.floor
 
 @Composable
 fun ProductOverviewScreen(
-    viewModel: ProductOverviewViewModel = viewModel()
-) {
+    viewModel: ProductOverviewViewModel = viewModel(),
+    onProductClick: (Int) -> Unit
+)
+ {
     val state by viewModel.uiState.collectAsState()
     val filter by viewModel.currentFilter.collectAsState()
     val products by viewModel.filteredProducts.collectAsState()
@@ -43,7 +46,8 @@ fun ProductOverviewScreen(
                 is ProductUiState.Error -> ErrorView((state as ProductUiState.Error).message)
                 is ProductUiState.Success -> ProductListView(
                     products = products,
-                    onToggleFavorite = { viewModel.toggleFavorite(it.toInt()) }
+                    onToggleFavorite = { viewModel.toggleFavorite(it.toInt()) },
+                    onProductClick = onProductClick
                 )
             }
         }
@@ -65,7 +69,12 @@ fun ErrorView(message: String) {
 }
 
 @Composable
-fun ProductListView(products: List<Product>, onToggleFavorite: (String) -> Unit) {
+fun ProductListView(
+    products: List<Product>,
+    onToggleFavorite: (String) -> Unit,
+    onProductClick: (Int) -> Unit
+)
+ {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -73,15 +82,25 @@ fun ProductListView(products: List<Product>, onToggleFavorite: (String) -> Unit)
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(products) { product ->
-            ProductCard(product = product, onToggleFavorite = onToggleFavorite)
+            ProductCard(
+                product = product,
+                onToggleFavorite = onToggleFavorite,
+                onClick = { onProductClick(product.id) }
+            )
         }
     }
 }
 
 @Composable
-fun ProductCard(product: Product, onToggleFavorite: (String) -> Unit) {
+fun ProductCard(
+    product: Product,
+    onToggleFavorite: (String) -> Unit,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(

@@ -4,9 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.check24app.ui.overview.ProductDetailScreen
 import com.example.check24app.ui.overview.ProductOverviewScreen
 import com.example.check24app.ui.theme.Check24AppTheme
 
@@ -16,10 +17,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Check24AppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) {
-                    ProductOverviewScreen()
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = "overview") {
+                    composable("overview") {
+                        ProductOverviewScreen(
+                            onProductClick = { productId ->
+                                navController.navigate("detail/$productId")
+                            }
+                        )
+                    }
+                    composable("detail/{productId}") { backStackEntry ->
+                        val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
+                        if (productId != null) {
+                            ProductDetailScreen(productId = productId)
+                        }
+                    }
                 }
             }
         }
+
     }
 }
