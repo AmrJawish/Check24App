@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.StarHalf
 import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import com.example.check24app.R
 
 @Composable
 fun ProductOverviewScreen(
@@ -193,9 +195,13 @@ fun ProductImage(url: String) {
     AsyncImage(
         model = url,
         contentDescription = null,
-        modifier = Modifier.size(80.dp)
+        modifier = Modifier.size(80.dp),
+        onError = { println("Image failed to load: $url") },
+        fallback = painterResource(id = R.drawable.ic_broken_image),
+        placeholder = painterResource(id = R.drawable.ic_placeholder)
     )
 }
+
 
 fun roundRatingToHalf(rating: Double): Double {
     return floor(rating * 2) / 2
