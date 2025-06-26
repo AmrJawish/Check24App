@@ -61,9 +61,8 @@ fun ProductOverviewScreen(
                     onReload = { viewModel.loadProducts() }
                 )
                 is ProductUiState.Success -> {
-                    val isRefreshing = state is ProductUiState.Loading
                     SwipeRefresh(
-                        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+                        state = rememberSwipeRefreshState(isRefreshing = false),
                         onRefresh = { viewModel.loadProducts() }
                     ) {
                         ProductListView(
