@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.check24app.model.Product
 import com.example.check24app.model.ProductFilter
@@ -115,7 +114,7 @@ fun ProductListView(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // ✅ Title and subtitle at top
+        // Title and subtitle at top
         item {
             Column(modifier = Modifier.padding(vertical = 8.dp)) {
                 Text("Unsere Produkte", style = MaterialTheme.typography.titleLarge)
@@ -123,7 +122,7 @@ fun ProductListView(
             }
         }
 
-        // ✅ Product cards
+        // Product cards
         items(products) { product ->
             ProductCard(
                 product = product,
@@ -132,7 +131,7 @@ fun ProductListView(
             )
         }
 
-        // ✅ Footer at bottom
+        // Footer at bottom
         item {
             FooterView(onClick = onFooterClick)
         }

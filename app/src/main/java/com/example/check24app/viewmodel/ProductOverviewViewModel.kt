@@ -94,7 +94,7 @@ class ProductOverviewViewModel : ViewModel() {
             val updatedProduct = _products[index].copy(isFavorite = !_products[index].isFavorite)
             _products[index] = updatedProduct
 
-            // 🔁 update observed product
+            // update observed product
             if (_activeProduct.value?.id == productId) {
                 _activeProduct.value = updatedProduct
             }
